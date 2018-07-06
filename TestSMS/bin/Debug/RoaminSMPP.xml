@@ -1,0 +1,3595 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RoaminSMPP</name>
+    </assembly>
+    <members>
+        <member name="T:RoaminSMPP.Packet.Response.SmppUnbindResp">
+            <summary>
+            Defines the unbind response from the SMSC.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu">
+            <summary>
+            Represents a protocol data unit.  This class holds type enumerations and common 
+            functionality for request and response Pdus.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.HEADER_LENGTH">
+            <summary>
+            Standard length of Pdu header.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DATE_TIME_LENGTH">
+            <summary>
+            Delivery time length
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.#ctor">
+            <summary>
+            Constructor for sent Pdus.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.#ctor(System.Byte[])">
+            <summary>
+            Constructor for received Pdus.
+            </summary>
+            <param name="incomingBytes">The incoming bytes to translate to a Pdu.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.InitPdu">
+            <summary>
+            Initializes this Pdu.  Override to add more functionality, but don't forget to 
+            call this one.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.DecodeSmscResponse">
+            <summary>
+            Decodes the bind response from the SMSC.  This version throws a NotImplementedException.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.InsertLengthIntoPdu(System.Collections.ArrayList)">
+            <summary>
+            Calculates the length of the given ArrayList representation of the Pdu and
+            inserts this length into the appropriate spot in the Pdu.  This will call
+            TrimToSize()on the ArrayList-the caller need not do it.
+            </summary>
+            <param name="pdu">The protocol data unit to calculate the
+            length for.</param>
+            <returns>The Pdu with the length inserted, trimmed to size.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.EncodePduForTransmission(System.Collections.ArrayList)">
+            <summary>
+            Takes the given Pdu, calculates its length(trimming it beforehand), inserting
+            its length, and copying it to a byte array.
+            </summary>
+            <param name="pdu">The Pdu to encode.</param>
+            <returns>The byte array representation of the Pdu.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.GetHostOrderUInt16FromTlv(System.UInt16)">
+            <summary>
+            Retrieves the given bytes from the TLV table and converts them into a
+            host order UInt16.
+            </summary>
+            <param name="tag">The TLV tag to use for retrieval</param>
+            <returns>The host order result.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.GetHostOrderUInt32FromTlv(System.UInt16)">
+            <summary>
+            Retrieves the given bytes from the TLV table and converts them into a
+            host order UInt32.
+            </summary>
+            <param name="tag">The TLV tag to use for retrieval</param>
+            <returns>The host order result.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.SetHostOrderValueIntoTlv(System.UInt16,System.UInt16)">
+            <summary>
+            Takes the given value and puts it into the TLV table, accounting for 
+            network byte ordering.
+            </summary>
+            <param name="tag">The TLV tag to use for retrieval</param>
+            <param name="val">The value to put into the table</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.SetHostOrderValueIntoTlv(System.UInt16,System.UInt32)">
+            <summary>
+            Takes the given value and puts it into the TLV table, accounting for 
+            network byte ordering.
+            </summary>
+            <param name="tag">The TLV tag to use for retrieval</param>
+            <param name="val">The value to put into the table</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.GetPduHeader">
+            <summary>
+            Creates an ArrayList consisting of the Pdu header.  Command ID and status
+            need to be set before calling this.
+            </summary>
+            <returns>The Pdu as a trimmed ArrayList.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.GenerateSequenceNumber">
+            <summary>
+            Generates a monotonically increasing sequence number for each Pdu.  When it
+            hits the the 32 bit unsigned int maximum, it starts over.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.GetOptionalParamString(System.UInt16)">
+            <summary>
+            Gets the optional parameter string associated with
+            the given tag.
+            </summary>
+            <param name="tag">The tag in TLV.</param>
+            <returns>The optional parameter string, the empty
+            string if not found.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.GetOptionalParamBytes(System.UInt16)">
+            <summary>
+            Gets the optional parameter bytes associated with
+            the given tag.
+            </summary>
+            <param name="tag">The tag in TLV.</param>
+            <returns>The optional parameter bytes, null if
+            not found.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.SetOptionalParamString(System.UInt16,System.String)">
+             <summary>
+             Sets the given TLV(as a string)into the table.  This ignores
+             null values.  This will reverse the byte order in the tag for you 
+            (necessary for encoding).
+             </summary>
+             <param name="tag">The tag for this TLV.</param>
+             <param name="val">The value of this TLV.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.SetOptionalParamBytes(System.UInt16,System.Byte[])">
+            <summary>
+            Sets the given TLV(as a byte array)into the table.  This will not take
+            care of big-endian/little-endian issues, although it will reverse the byte order 
+            in the tag for you(necessary for encoding).  This ignores null values.
+            </summary>
+            <param name="tag">The tag for this TLV.</param>
+            <param name="val">The value of this TLV.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.UpdateOptionalParamBytes(System.UInt16,System.Byte[])">
+            <summary>
+            Allows the updating of TLV values.  This will not take care of 
+            big-endian/little-endian issues, although it will reverse the byte order 
+            in the tag for you(necessary for encoding).
+            </summary>
+            <param name="tag">The tag for this TLV.</param>
+            <param name="val">The value of this TLV.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.UpdateOptionalParamString(System.UInt16,System.String)">
+             <summary>
+             Allows the updating of TLV values.  This will reverse the byte order in the tag for you 
+            (necessary for encoding).
+             </summary>
+             <param name="tag">The tag for this TLV.</param>
+             <param name="val">The value of this TLV.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.TranslateTlvDataIntoTable(System.Byte[])">
+            <summary>
+            Takes the given bytes and attempts to insert them into the TLV table.
+            </summary>
+            <param name="tlvBytes">The bytes to convert for the TLVs.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.TranslateTlvDataIntoTable(System.Byte[],System.Int32)">
+            <summary>
+            Takes the given bytes and attempts to insert them into the TLV table.
+            </summary>
+            <param name="tlvBytes">The bytes to convert for the TLVs.</param>
+            <param name="index">The index of the byte array to start at.  This is here
+            because in some instances you may not want to start at the
+            beginning.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.AddTlvBytes(System.Collections.ArrayList@)">
+            <summary>
+            Adds the TLV bytes to the given Pdu.
+            </summary>
+            <param name="pdu">The Pdu to add to.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.TrimResponsePdu(System.Byte[])">
+            <summary>
+            Trims the trailing zeroes off of the response Pdu.  Useful for
+            tracing and other purposes.  This uses the command length to
+            actually trim it down, so TLVs and strings are not lost.  If the
+            response actually is the same length as the command length, this
+            method performs a pass-through.
+            </summary>
+            <returns>The trimmed Pdu(byte array).</returns>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.DecodeCommandId(System.Byte[])">
+            <summary>
+            Utility method to allow the Pdu factory to decode the command
+            ID without knowing about packet structure.  Some SMSCs combine
+            response packets(even though they shouldn't).
+            </summary>
+            <param name="response">The Pdu response packet.</param>
+            <returns>The ID of the Pdu command(e.g. cancel_sm_resp).</returns>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.DecodeCommandLength(System.Byte[])">
+            <summary>
+            Utility method to allow the Pdu factory to decode the command
+            length without knowing about packet structure.  Some SMSCs combine
+            response packets(even though they shouldn't).
+            </summary>
+            <param name="response">The Pdu response packet.</param>
+            <returns>The length of the Pdu command.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.Dispose">
+            <summary>
+            Implementation of IDisposable
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.Dispose(System.Boolean)">
+            <summary>
+            Method for derived classes to implement.
+            </summary>
+            <param name="disposing">Set to false if called from a finalizer.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Pdu.Finalize">
+            <summary>
+            Finalizer.  Base classes will inherit this-used when Dispose()is not automatically called.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Pdu.PacketBytes">
+            <summary>
+            Gets or sets the byte response from the SMSC.  This will return a clone of the 
+            byte array upon a "get" request. 
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Pdu.CommandLength">
+            <summary>
+            Defines the overall length of the Pdu in octets(i.e. bytes).
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Pdu.SequenceNumber">
+            <summary>
+            The sequence number of the message.  Only call this after you call 
+            GetMSBHexEncoding; it will be incorrect otherwise.  If you are setting the 
+            sequence number(such as for a deliver_sm_resp), set this before you call 
+            GetMSBHexEncoding.  Note that setting the custom sequence number will 
+            disable the automatic updating of the sequence number for this instance.  
+            You can restore the automatic updating by setting this property to 0.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Pdu.CommandStatus">
+            <summary>
+            Indicates outcome of request.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Pdu.CommandID">
+            <summary>
+            The command ID of this Pdu.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Pdu.BytesAfterHeader">
+            <summary>
+            What remains after the header is stripped off the Pdu.  Subclasses
+            don't need the header as its information is stored here.  In
+            addition, this allows them to manipulate the response data
+            all they want without destroying the original.  The copying is
+            done every time this property is accessed, so use caution in a
+            high-performance setting.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.BearerType">
+            <summary>
+            Enumerates the bearer types for source and destination.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.BearerType.Unknown">
+            <summary>
+            Unknown
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.BearerType.SMS">
+            <summary>
+            SMS
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.BearerType.CircuitSwitchedData">
+            <summary>
+            CircuitSwitchedData
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.BearerType.PacketData">
+            <summary>
+            PacketData
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.BearerType.USSD">
+            <summary>
+            USSD
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.BearerType.CDPD">
+            <summary>
+            CDPD
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.BearerType.DataTAC">
+            <summary>
+            DataTAC
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.BearerType.FLEX_ReFLEX">
+            <summary>
+            FLEX_ReFLEX
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.BearerType.CellBroadcast">
+            <summary>
+            CellBroadcast
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.NetworkType">
+            <summary>
+            Enumerates the network types for the source and destination.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NetworkType.Unknown">
+            <summary>
+            Unknown
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NetworkType.GSM">
+            <summary>
+            GSM
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NetworkType.ANSI_136_TDMA">
+            <summary>
+            ANSI_136_TDMA
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NetworkType.IS_95_CDMA">
+            <summary>
+            IS_95_CDMA
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NetworkType.PDC">
+            <summary>
+            PDC
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NetworkType.PHS">
+            <summary>
+            PHS
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NetworkType.iDEN">
+            <summary>
+            iDEN
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NetworkType.AMPS">
+            <summary>
+            AMPS
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NetworkType.PagingNetwork">
+            <summary>
+            PagingNetwork
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.MessageStateType">
+            <summary>
+            Enumerates the different states a message can be in.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.MessageStateType.Enroute">
+            <summary>
+            Enroute
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.MessageStateType.Delivered">
+            <summary>
+            Delivered
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.MessageStateType.Expired">
+            <summary>
+            Expired
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.MessageStateType.Deleted">
+            <summary>
+            Deleted
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.MessageStateType.Undeliverable">
+            <summary>
+            Undeliverable
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.MessageStateType.Accepted">
+            <summary>
+            Accepted
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.MessageStateType.Unknown">
+            <summary>
+            Unknown
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.MessageStateType.Rejected">
+            <summary>
+            Rejected
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.SmppVersionType">
+            <summary>
+            SMPP version type.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.SmppVersionType.Version3_3">
+            <summary>
+            Version 3.3 of the SMPP spec.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.SmppVersionType.Version3_4">
+            <summary>
+            Version 3.4 of the SMPP spec.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.AddressSubunitType">
+            <summary>
+            Enumerates the source address subunit types.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.AddressSubunitType.Unknown">
+            <summary>
+            Unknown
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.AddressSubunitType.MSDisplay">
+            <summary>
+            MSDisplay
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.AddressSubunitType.MobileEquipment">
+            <summary>
+            MobileEquipment
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.AddressSubunitType.SmartCard1">
+            <summary>
+            SmartCard1
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.AddressSubunitType.ExternalUnit1">
+            <summary>
+            ExternalUnit1
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.DisplayTimeType">
+            <summary>
+            Enumerates the display time type.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DisplayTimeType.Temporary">
+            <summary>
+            Temporary
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DisplayTimeType.Default">
+            <summary>
+            Default
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DisplayTimeType.Invoke">
+            <summary>
+            Invoke
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.ItsReplyTypeType">
+            <summary>
+            Enumerates the type of the ITS Reply Type
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.ItsReplyTypeType.Digit">
+            <summary>
+            Digit
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.ItsReplyTypeType.Number">
+            <summary>
+            Number
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.ItsReplyTypeType.TelephoneNum">
+            <summary>
+            TelephoneNum
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.ItsReplyTypeType.Password">
+            <summary>
+            Password
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.ItsReplyTypeType.CharacterLine">
+            <summary>
+            CharacterLine
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.ItsReplyTypeType.Menu">
+            <summary>
+            Menu
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.ItsReplyTypeType.Date">
+            <summary>
+            Date
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.ItsReplyTypeType.Time">
+            <summary>
+            Time
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.ItsReplyTypeType.Continue">
+            <summary>
+            Continue
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.MsValidityType">
+            <summary>
+            Enumerates the MS Display type.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.MsValidityType.StoreIndefinitely">
+            <summary>
+            StoreIndefinitely
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.MsValidityType.PowerDown">
+            <summary>
+            PowerDown
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.MsValidityType.SIDBased">
+            <summary>
+            SIDBased
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.MsValidityType.DisplayOnly">
+            <summary>
+            DisplayOnly
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.OptionalParamCodes">
+            <summary>
+            Enumerates all of the "standard" optional codes.  This is more for
+            convenience when writing/updating this library than for end programmers,
+            as the the TLV table methods take a ushort/UInt16 rather than an
+            OptionalParamCodes enumeration.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.dest_addr_subunit">
+            <summary>
+            Destination address subunit
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.dest_network_type">
+            <summary>
+            Destination address network type
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.dest_bearer_type">
+            <summary>
+            Destination address bearer type
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.dest_telematics_id">
+            <summary>
+            Destination address telematics ID
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.source_addr_subunit">
+            <summary>
+            Source address subunit
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.source_network_type">
+            <summary>
+            Source address network type
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.source_bearer_type">
+            <summary>
+            Source address bearer type
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.source_telematics_id">
+            <summary>
+            Source address telematics ID
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.qos_time_to_live">
+            <summary>
+            Quality of service time to live
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.payload_type">
+            <summary>
+            Payload type
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.additional_status_info_text">
+            <summary>
+            Additional status info
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.receipted_message_id">
+            <summary>
+            Receipted message ID
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.ms_msg_wait_facilities">
+            <summary>
+            Message wait facilities
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.privacy_indicator">
+            <summary>
+            Privacy indicator
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.source_subaddress">
+            <summary>
+            Source subaddress
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.dest_subaddress">
+            <summary>
+            Destination subaddress
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.user_message_reference">
+            <summary>
+            User message reference
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.user_response_code">
+            <summary>
+            User response code
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.source_port">
+            <summary>
+            Source port
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.destination_port">
+            <summary>
+            Destination port
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.sar_msg_ref_num">
+            <summary>
+            Message reference number
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.language_indicator">
+            <summary>
+            Language indicator
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.sar_total_segments">
+            <summary>
+            Total segments
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.sar_segment_seqnum">
+            <summary>
+            Segment sequence number
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.SC_interface_version">
+            <summary>
+            Interface version
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.callback_num_pres_ind">
+            <summary>
+            Callback number indicator
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.callback_num_atag">
+            <summary>
+            Callback number tag
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.number_of_messages">
+            <summary>
+            Total number of messages
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.callback_num">
+            <summary>
+            Callback number
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.dpf_result">
+            <summary>
+            DPF result
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.set_dpf">
+            <summary>
+            Set DPF
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.ms_availability_status">
+            <summary>
+            Availability status
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.network_error_code">
+            <summary>
+            Network error code
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.message_payload">
+            <summary>
+            Message payload
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.delivery_failure_reason">
+            <summary>
+            Reason for delivery failure
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.more_messages_to_send">
+            <summary>
+            More messages to send flag
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.message_state">
+            <summary>
+            Message state
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.ussd_service_op">
+            <summary>
+            USSD service opcode
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.display_time">
+            <summary>
+            Display time
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.sms_signal">
+            <summary>
+            SMS signal
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.ms_validity">
+            <summary>
+            Message validity
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.alert_on_message_delivery">
+            <summary>
+            Alert on message delivery
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.its_reply_type">
+            <summary>
+            ITS reply type
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.OptionalParamCodes.its_session_info">
+            <summary>
+            ITS session info
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.TonType">
+            <summary>
+            Enumerates the type of number types that can be used for the SMSC 
+            message
+            sending.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.TonType.Unknown">
+            <summary>
+            Unknown
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.TonType.International">
+            <summary>
+            International
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.TonType.National">
+            <summary>
+            National
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.TonType.NetworkSpecific">
+            <summary>
+            Network specific
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.TonType.SubscriberNumber">
+            <summary>
+            Subscriber number
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.TonType.Alphanumeric">
+            <summary>
+            Alphanumeric
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.TonType.Abbreviated">
+            <summary>
+            Abbreviated
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.NpiType">
+            <summary>
+            Enumerates the number plan indicator types that can be used for the 
+            SMSC
+            message sending.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NpiType.Unknown">
+            <summary>
+            Unknown
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NpiType.ISDN">
+            <summary>
+            ISDN
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NpiType.Data">
+            <summary>
+            Data
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NpiType.Telex">
+            <summary>
+            Telex
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NpiType.LandMobile">
+            <summary>
+            Land mobile
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NpiType.National">
+            <summary>
+            National
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NpiType.Private">
+            <summary>
+            Private
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NpiType.ERMES">
+            <summary>
+            ERMES
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.NpiType.Internet">
+            <summary>
+            Internet
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.PriorityType">
+            <summary>
+            Enumerates the priority level of the message.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.PriorityType.Lowest">
+            <summary>
+            Lowest
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.PriorityType.Level1">
+            <summary>
+            Level1
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.PriorityType.Level2">
+            <summary>
+            Level2
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.PriorityType.Highest">
+            <summary>
+            Highest
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.RegisteredDeliveryType">
+            <summary>
+            Enumerates the types of registered delivery.  Not all possible options 
+            are present, just the common ones.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.RegisteredDeliveryType.None">
+            <summary>
+            No registered delivery
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.RegisteredDeliveryType.OnSuccessOrFailure">
+            <summary>
+            Notification on success or failure
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.RegisteredDeliveryType.OnFailure">
+            <summary>
+            Notification on failure only
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.DataCodingType">
+            <summary>
+            Enumerates the data coding types.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DataCodingType.SMSCDefault">
+            <summary>
+            SMSCDefault
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DataCodingType.IA5_ASCII">
+            <summary>
+            IA5_ASCII
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DataCodingType.OctetUnspecifiedB">
+            <summary>
+            OctetUnspecifiedB
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DataCodingType.Latin1">
+            <summary>
+            Latin1
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DataCodingType.OctetUnspecifiedA">
+            <summary>
+            OctetUnspecifiedA
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DataCodingType.JIS">
+            <summary>
+            JIS
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DataCodingType.Cyrillic">
+            <summary>
+            Cyrillic
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DataCodingType.Latin_Hebrew">
+            <summary>
+            Latin_Hebrew
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DataCodingType.Pictogram">
+            <summary>
+            Pictogram
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DataCodingType.MusicCodes">
+            <summary>
+            MusicCodes
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DataCodingType.ExtendedKanjiJIS">
+            <summary>
+            ExtendedKanjiJIS
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DataCodingType.KS_C">
+            <summary>
+            KS_C
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.PrivacyType">
+            <summary>
+            Enumerates the privacy indicator types.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.PrivacyType.Nonrestricted">
+            <summary>
+            Nonrestricted
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.PrivacyType.Restricted">
+            <summary>
+            Restricted
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.PrivacyType.Confidential">
+            <summary>
+            Confidential
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.PrivacyType.Secret">
+            <summary>
+            Secret
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.PayloadTypeType">
+            <summary>
+            Enumerates the types of payload type.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.PayloadTypeType.WDPMessage">
+            <summary>
+            WDPMessage
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.PayloadTypeType.WCMPMessage">
+            <summary>
+            WCMPMessage
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.LanguageType">
+            <summary>
+            Enumerates the language types.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.LanguageType.Unspecified">
+            <summary>
+            Unspecified
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.LanguageType.English">
+            <summary>
+            English
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.LanguageType.French">
+            <summary>
+            French
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.LanguageType.Spanish">
+            <summary>
+            Spanish
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.LanguageType.German">
+            <summary>
+            German
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.LanguageType.Portuguese">
+            <summary>
+            Portuguese
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.DpfResultType">
+            <summary>
+            Enumerates the DPF result types.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DpfResultType.DPFNotSet">
+            <summary>
+            DPFNotSet
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.DpfResultType.DPFSet">
+            <summary>
+            DPFSet
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Pdu.CommandIdType">
+            <summary>
+            Enumeration of all the Pdu command types.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.generic_nack">
+            <summary>
+            generic_nack
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.bind_receiver">
+            <summary>
+            bind_receiver
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.bind_receiver_resp">
+            <summary>
+            bind_receiver_resp
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.bind_transmitter">
+            <summary>
+            bind_transmitter
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.bind_transmitter_resp">
+            <summary>
+            bind_transmitter_resp
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.query_sm">
+            <summary>
+            query_sm
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.query_sm_resp">
+            <summary>
+            query_sm_resp
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.submit_sm">
+            <summary>
+            submit_sm
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.submit_sm_resp">
+            <summary>
+            submit_sm_resp
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.deliver_sm">
+            <summary>
+            deliver_sm
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.deliver_sm_resp">
+            <summary>
+            deliver_sm_resp
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.unbind">
+            <summary>
+            unbind
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.unbind_resp">
+            <summary>
+            unbind_resp
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.replace_sm">
+            <summary>
+            replace_sm
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.replace_sm_resp">
+            <summary>
+            replace_sm_resp
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.cancel_sm">
+            <summary>
+            cancel_sm
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.cancel_sm_resp">
+            <summary>
+            cancel_sm_resp
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.bind_transceiver">
+            <summary>
+            bind_transceiver
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.bind_transceiver_resp">
+            <summary>
+            bind_transceiver_resp
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.outbind">
+            <summary>
+            outbind
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.enquire_link">
+            <summary>
+            enquire_link
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.enquire_link_resp">
+            <summary>
+            enquire_link_resp
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.submit_multi">
+            <summary>
+            submit_multi
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.submit_multi_resp">
+            <summary>
+            submit_multi_resp
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.alert_notification">
+            <summary>
+            alert_notification
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.data_sm">
+            <summary>
+            data_sm
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Pdu.CommandIdType.data_sm_resp">
+            <summary>
+            data_sm_resp
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppUnbindResp.#ctor(System.Byte[])">
+            <summary>
+            Creates an unbind response Pdu.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppUnbindResp.#ctor">
+            <summary>
+            Creates an unbind response Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppUnbindResp.DecodeSmscResponse">
+            <summary>
+            Decodes the unbind response from the SMSC.  Since an unbind response contains
+            essentially nothing other than the header, this method does nothing special.
+            It will grab any TLVs that are in the Pdu, however.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppUnbindResp.InitPdu">
+            <summary>
+            Initializes this Pdu for sending purposes.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppUnbindResp.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Response.SmppBindResp">
+            <summary>
+            Class to define an SMSC bind response.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppBindResp.#ctor(System.Byte[])">
+            <summary>
+            Creates a bind response Pdu.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppBindResp.#ctor">
+            <summary>
+            Creates a bind_resp.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppBindResp.DecodeSmscResponse">
+            <summary>
+            Decodes the bind response from the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppBindResp.InitPdu">
+            <summary>
+            Initializes this Pdu for sending purposes.  Note that this sets the bind type to 
+            transceiver so you will want to change this if you are not dealing with a 
+            transceiver.  This also sets system type to an empty string.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppBindResp.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppBindResp.SystemId">
+            <summary>
+            The ID of the SMSC.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppBindResp.ScInterfaceVersion">
+            <summary>
+            The SMPP version supported by SMSC.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppOutbind">
+            <summary>
+            Defines an outbind response(really a request TO us)from the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppOutbind.#ctor(System.Byte[])">
+            <summary>
+            Creates an outbind response Pdu.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppOutbind.#ctor">
+            <summary>
+            Creates an outbind response Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppOutbind.DecodeSmscResponse">
+            <summary>
+            Decodes the outbind response from the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppOutbind.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppOutbind.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppOutbind.SystemId">
+            <summary>
+            The ID of the SMSC.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppOutbind.Password">
+            <summary>
+            Password that the ESME can use for authentication.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Response.SmppSubmitSmResp">
+            <summary>
+            Defines the submit_sm response from the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppSubmitSmResp.#ctor(System.Byte[])">
+            <summary>
+            Creates a submit_sm response Pdu.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppSubmitSmResp.#ctor">
+            <summary>
+            Creates a submit_sm_resp
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppSubmitSmResp.DecodeSmscResponse">
+            <summary>
+            Decodes the submit response from the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppSubmitSmResp.DecodeNonTlv">
+            <summary>
+            Decodes the non-TLV bytes.  Needed for the submit_multi_resp.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppSubmitSmResp.InitPdu">
+            <summary>
+            Initializes this Pdu for sending purposes.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppSubmitSmResp.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppSubmitSmResp.MessageId">
+            <summary>
+            The message ID(SMSC-assigned)of the submitted message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppSubmitSmResp.ResponseAfterMsgId">
+            <summary>
+            Accessor for the submit_multi to get at the response after the message ID.
+            This is, in essence, set only after DecodeSmscResponse()in this base class
+            is called.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Response.SmppSubmitMultiResp">
+            <summary>
+            Description of SmppSubmitMultiResp.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppSubmitMultiResp.#ctor(System.Byte[])">
+            <summary>
+            Creates a submit_multi response Pdu.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppSubmitMultiResp.#ctor">
+            <summary>
+            Creates a submit_multi response Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppSubmitMultiResp.DecodeSmscResponse">
+            <summary>
+            Decodes the submit_multi response from the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppSubmitMultiResp.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppSubmitMultiResp.ToMsbHexEncoding">
+            <summary>
+            Creates the byte encoding for this Pdu.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppSubmitMultiResp.NumberUnsuccessful">
+            <summary>
+            The number of messages that could not be delivered.  The mutator is not 
+            provided as setting the unsucess addresses will set it.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppSubmitMultiResp.UnsuccessfulAddresses">
+            <summary>
+            The array of unsuccessful addresses.  This will set the number of addresses as well.  
+            Passing in null will set them to zero.  Calling the accessor will get you a cloned array.  
+            You must use the set accessor to modify the values.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppDeliverSm">
+            <summary>
+            This class defines a deliver_sm that is SMSC generated.  This does
+            NOT handle anything other than strings in the short message.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppDeliverSm.#ctor(System.Byte[])">
+            <summary>
+            Creates a deliver_sm Pdu.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppDeliverSm.#ctor">
+            <summary>
+            Creates a deliver_sm Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppDeliverSm.DecodeSmscResponse">
+            <summary>
+            This decodes the deliver_sm Pdu.  The Pdu has basically the same format as
+            the submit_sm Pdu, but in this case it is a response.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppDeliverSm.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppDeliverSm.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.ServiceType">
+            <summary>
+            Used to indicate the SMS Application service associated with the message.
+            If this is unknown, null is returned.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.SourceAddressTon">
+            <summary>
+            Type of Number for source address.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.SourceAddressNpi">
+            <summary>
+            Numbering Plan Indicator for source address.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.SourceAddress">
+            <summary>
+            Address of origination entity.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.DestinationAddressTon">
+            <summary>
+            Type of number of destination entity.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.DestinationAddressNpi">
+            <summary>
+            Numbering Plan Indicator of destination entity.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.DestinationAddress">
+            <summary>
+            Destination address of entity.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.EsmClass">
+            <summary>
+            Indicates Message Mode and Message Type.  See the SMSC
+            version 3.4 specification for details on this.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.ProtocolId">
+            <summary>
+            Protocol Identifier; network specific.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.PriorityFlag">
+            <summary>
+            Designates the priority level of the message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.RegisteredDelivery">
+            <summary>
+            Use this to indicate if you want delivery confirmation.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.DataCoding">
+            <summary>
+            Indicates the encoding scheme of the short message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.SmLength">
+            <summary>
+            Short message length in octets(bytes for x86).
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.ShortMessage">
+            <summary>
+            The short message for this Pdu.  This holds up to 160 characters.
+            If the message is longer, the MessagePayload property will be used.
+            If this is the case, the short message length will be zero.  Note
+            that both the ShortMessage and MessagePayload cannot be used
+            simultaneously.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.UserMessageReference">
+            <summary>
+            The message reference number assigned by the ESME.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.SourcePort">
+            <summary>
+            The port number associated with the source address of the message.  This
+            parameter will be present for WAP applications.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.DestinationPort">
+            <summary>
+            The port number associated with the destination address of the message.  This
+            parameter will be present for WAP applications.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.SarMsgRefNumber">
+            <summary>
+            The reference number for a particular concatenated short message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.SarTotalSegments">
+            <summary>
+            Total number of short message fragments within the concatenated short message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.SarSegmentSeqnum">
+            <summary>
+            The sequence number of a particular short message fragment within the 
+            concatenated short message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.UserResponseCode">
+            <summary>
+            A user response code. The actual response codes are SMS application specific.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.PrivacyIndicator">
+            <summary>
+            Indicates a level of privacy associated with the message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.PayloadType">
+            <summary>
+            Defines the type of payload(e.g. WDP, WCMP, etc.)
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.MessagePayload">
+            <summary>
+            This can hold up to 64K octets of short message data.
+            The actual limit is network/SMSC dependent.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.CallbackNum">
+            <summary>
+            Associates a callback number with a message.  See section 5.3.2.36 of the
+            SMPP spec for details.  This must be between 4 and 19 characters in length.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.SourceSubaddress">
+            <summary>
+            Specifies a source subaddress associated with the originating entity.
+            See section 5.3.2.15 of the SMPP spec for details on setting this parameter.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.DestinationSubaddress">
+            <summary>
+            Specifies a source subaddress associated with the receiving entity.
+            See section 5.3.2.15 of the SMPP spec for details on setting this parameter.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.LanguageIndicator">
+            <summary>
+            The language of the short message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.ItsSessionInfo">
+            <summary>
+            From the SMPP spec:
+            The its_session_info parameter is a required parameter for the CDMA Interactive
+            Teleservice as defined by the Korean PCS carriers [KORITS]. It contains control
+            information for the interactive session between an MS and an ESME.
+                        See section 5.3.2.43 of the SMPP spec for how to set this.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.NetworkErrorCode">
+            <summary>
+            Network Error Code.  May be present for Intermediate Notifications
+            and SMSC Delivery Receipts.  See SMPP spec 5.3.2.31 for details.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.MessageState">
+            <summary>
+            Indicates to the ESME the final message state for an SMSC Delivery Receipt.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDeliverSm.ReceiptedMessageId">
+            <summary>
+            Indicates the ID of the message being receipted in an SMSC Delivery Receipt.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Response.SmppQuerySmResp">
+            <summary>
+            This class defines the response to a query_sm Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppQuerySmResp.#ctor(System.Byte[])">
+            <summary>
+            Creates a query_sm response.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppQuerySmResp.#ctor">
+            <summary>
+            Creates a query_sm response.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppQuerySmResp.DecodeSmscResponse">
+            <summary>
+            Decodes the query_sm response from the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppQuerySmResp.InitPdu">
+            <summary>
+            Initializes this Pdu for sending purposes.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppQuerySmResp.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppQuerySmResp.MessageId">
+            <summary>
+            SMSC Message ID of the message whose state is being queried.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppQuerySmResp.FinalDate">
+            <summary>
+            Date and time when the queried message reached a final state. For messages
+            which have not yet reached a final state this field will be null.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppQuerySmResp.MessageStatus">
+            <summary>
+            Specifies the status of the queried short message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppQuerySmResp.ErrorCode">
+            <summary>
+            Holds a network error code defining the reason for failure of message delivery.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Response.SmppCancelSmResp">
+            <summary>
+            Response Pdu for the cancel_sm command.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppCancelSmResp.#ctor(System.Byte[])">
+            <summary>
+            Creates a cancel_sm Pdu.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppCancelSmResp.#ctor">
+            <summary>
+            Creates a cancel_sm Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppCancelSmResp.DecodeSmscResponse">
+            <summary>
+            Decodes the cancel_sm response from the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppCancelSmResp.InitPdu">
+            <summary>
+            Initializes this Pdu for sending purposes.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppCancelSmResp.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Response.SmppReplaceSmResp">
+            <summary>
+            Defines the replace_sm_resp Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppReplaceSmResp.#ctor(System.Byte[])">
+            <summary>
+            Creates a replace_sm response Pdu.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppReplaceSmResp.#ctor">
+            <summary>
+            Creates a replace_sm response Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppReplaceSmResp.DecodeSmscResponse">
+            <summary>
+            Decodes the replace_sm response from the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppReplaceSmResp.InitPdu">
+            <summary>
+            Initializes this Pdu for sending purposes.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppReplaceSmResp.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Response.SmppEnquireLinkResp">
+            <summary>
+            Defines the response Pdu from an enquire_link.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppEnquireLinkResp.#ctor(System.Byte[])">
+            <summary>
+            Creates an enquire_link Pdu.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppEnquireLinkResp.#ctor">
+            <summary>
+            Creates an enquire_link Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppEnquireLinkResp.DecodeSmscResponse">
+            <summary>
+            Decodes the enquire_link response from the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppEnquireLinkResp.InitPdu">
+            <summary>
+            Initializes this Pdu for sending purposes.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppEnquireLinkResp.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppAlertNotification">
+            <summary>
+            Sent from the SMSC to the mobile device when the device is available and a
+            delivery pending flag has been set from a previous data_sm operation.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppAlertNotification.#ctor(System.Byte[])">
+            <summary>
+            Creates an SMPP Alert Notification Pdu.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppAlertNotification.#ctor">
+            <summary>
+            Creates an SMPP Alert Notification Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppAlertNotification.DecodeSmscResponse">
+            <summary>
+            Decodes the alert_notification from the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppAlertNotification.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppAlertNotification.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppAlertNotification.SourceAddressTon">
+            <summary>
+            Enumerates the type of number.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppAlertNotification.SourceAddressNpi">
+            <summary>
+            Enumerates the numbering plan indicator.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppAlertNotification.SourceAddress">
+            <summary>
+            Address of sending entity.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppAlertNotification.EsmeAddressTon">
+            <summary>
+            The type of number for the destination address that requested an alert.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppAlertNotification.EsmeAddressNpi">
+            <summary>
+            The numbering plan indicator for the destination address that requested an alert.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppAlertNotification.EsmeAddress">
+            <summary>
+            The source address of the device that requested an alert.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppAlertNotification.MSAvailabilityStatus">
+            <summary>
+            The status of the mobile station.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppAlertNotification.AvailabilityStatusType">
+            <summary>
+            Enumerates the availability states of the message.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Request.SmppAlertNotification.AvailabilityStatusType.Available">
+            <summary>
+            Available
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Request.SmppAlertNotification.AvailabilityStatusType.Denied">
+            <summary>
+            Denied
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Request.SmppAlertNotification.AvailabilityStatusType.Unavailable">
+            <summary>
+            Unavailable
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Response.SmppDataSmResp">
+            <summary>
+            Response Pdu for the data_sm command.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppDataSmResp.#ctor">
+            <summary>
+            Creates a data_sm_resp Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppDataSmResp.#ctor(System.Byte[])">
+            <summary>
+            Creates a data_sm_resp Pdu.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppDataSmResp.InitPdu">
+            <summary>
+            Initializes this Pdu for sending purposes.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppDataSmResp.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppDataSmResp.DeliveryFailureReason">
+            <summary>
+            Indicates the reason for delivery failure.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppDataSmResp.NetworkErrorCode">
+            <summary>
+            Error code specific to a wireless network.  See SMPP spec section
+            5.3.2.31 for details.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppDataSmResp.AdditionalStatusInfoText">
+            <summary>
+            Text(ASCII)giving additional info on the meaning of the response.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Response.SmppDataSmResp.DpfResult">
+            <summary>
+            Indicates whether the Delivery Pending Flag was set.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Response.SmppDataSmResp.DeliveryFailureType">
+            <summary>
+            Enumerates the delivery failure types.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Response.SmppDataSmResp.DeliveryFailureType.DestinationUnavailable">
+            <summary>
+            DestinationUnavailable
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Response.SmppDataSmResp.DeliveryFailureType.DestinationAddressInvalid">
+            <summary>
+            DestinationAddressInvalid
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Response.SmppDataSmResp.DeliveryFailureType.PermanentNetworkError">
+            <summary>
+            PermanentNetworkError
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Response.SmppDataSmResp.DeliveryFailureType.TemporaryNetworkError">
+            <summary>
+            TemporaryNetworkError
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Response.SmppGenericNackResp">
+            <summary>
+            Represents a generic NACK sent by the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppGenericNackResp.#ctor(System.Byte[])">
+            <summary>
+            Creates a generic_nack response Pdu.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppGenericNackResp.#ctor">
+            <summary>
+            Creates a generic_nack response Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppGenericNackResp.DecodeSmscResponse">
+            <summary>
+            Decodes the generic NACK response from the SMSC.  Since a generic
+            NACK response contains essentially nothing other than the header,
+            this method does nothing special.  It will grab any TLVs that are in
+            the Pdu, however.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppGenericNackResp.InitPdu">
+            <summary>
+            Initializes this Pdu for sending purposes.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppGenericNackResp.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Response.SmppDeliverSmResp">
+            <summary>
+            This class defines an ESME originated deliver_sm_resp.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppDeliverSmResp.#ctor">
+            <summary>
+            Creates a deliver_sm_resp Pdu.  Sets command status and command ID.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppDeliverSmResp.#ctor(System.Byte[])">
+            <summary>
+            Creates a deliver_sm_resp Pdu.  Sets command status and command ID.
+            </summary>
+            <param name="incomingBytes">The incoming bytes from the ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppDeliverSmResp.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppDeliverSmResp.ToMsbHexEncoding">
+            <summary>
+            Creates the byte encoding for this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Response.SmppDeliverSmResp.DecodeSmscResponse">
+            <summary>
+            Decodes the deliver_sm response from the SMSC.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppReplaceSm">
+            <summary>
+            Pdu to replace a previously submitted short message that hasn't been delivered.
+            The match is based on the message_id and source addresses of the original message.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.MessageLcd4">
+            <summary>
+            Provides some common attributes for data_sm, submit_sm, submit_multi,
+            and replace_sm.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.MessageLcd6">
+            <summary>
+            Provides some common attributes for data_sm, query_sm, submit_sm, submit_multi,
+            cancel_sm, and replace_sm.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Request.MessageLcd6.ADDRESS_LENGTH">
+            <summary>
+            Address length for source and destination addresses
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Request.MessageLcd6.MSG_LENGTH">
+            <summary>
+            Message length
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Request.MessageLcd6.SERVICE_TYPE_LENGTH">
+            <summary>
+            Length of service type string
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.MessageLcd6.#ctor">
+            <summary>
+            Groups construction tasks for subclasses.  Sets source address TON to 
+            international, source address NPI to ISDN, and source address to "".
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.MessageLcd6.#ctor(System.Byte[])">
+            <summary>
+            Creates a new MessageLcd6 for incoming PDUs.
+            </summary>
+            <param name="incomingBytes">The incoming bytes to decode.</param>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd6.SourceAddressTon">
+            <summary>
+            The type of number of the source address.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd6.SourceAddressNpi">
+            <summary>
+            The number plan indicator of the source address.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd6.SourceAddress">
+            <summary>
+            The source address.  Null values are treated as empty strings.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Request.MessageLcd4._RegisteredDelivery">
+            <summary>
+            The registered delivery type of the message.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.MessageLcd4.#ctor">
+            <summary>
+            Groups construction tasks for subclasses.  Sets source address TON to international, 
+            source address NPI to ISDN, source address to "", and registered delivery type to 
+            none.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.MessageLcd4.#ctor(System.Byte[])">
+            <summary>
+            Creates a new MessageLcd4 for incoming PDUs.
+            </summary>
+            <param name="incomingBytes">The incoming bytes to decode.</param>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd4.RegisteredDelivery">
+            <summary>
+            The registered delivery type of the message.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppReplaceSm.#ctor">
+            <summary>
+            Creates a replace_sm Pdu.  Sets source address TON to international, 
+            source address NPI to ISDN, source address to "", registered delivery type to none,
+            message ID, scheduled delivery time, validity period, and short message to 
+            empty strings(NULL SMSC value).  Sets the default message ID to 0.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppReplaceSm.#ctor(System.Byte[])">
+            <summary>
+            Creates a replace_sm Pdu.  Sets source address TON to international, 
+            source address NPI to ISDN, source address to "", registered delivery type to none,
+            message ID, scheduled delivery time, validity period, and short message to 
+            empty strings(NULL SMSC value).  Sets the default message ID to 0.
+            </summary>
+            <param name="incomingBytes">The incoming bytes from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppReplaceSm.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppReplaceSm.ToMsbHexEncoding">
+            <summary>
+            Generates the hex encoded bytes for a replace_sm Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppReplaceSm.DecodeSmscResponse">
+            <summary>
+            This decodes the submit_sm Pdu.  The Pdu has basically the same format as
+            the submit_sm Pdu, but in this case it is a response.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppReplaceSm.MessageId">
+            <summary>
+            SMSC message ID of the message to be replaced. This must be the message ID of the 
+            original message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppReplaceSm.ScheduleDeliveryTime">
+            <summary>
+            New scheduled delivery time for the short message.  Set to null, if updating of the 
+            original scheduled delivery time is not desired.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppReplaceSm.ValidityPeriod">
+            <summary>
+            New expiration time for the short message. Set to null, if updating of the original 
+            expiration time is not required.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppReplaceSm.SmDefaultMessageId">
+            <summary>
+            New pre-defined(canned)message identifier.  Set to 0 if not using.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppReplaceSm.ShortMessage">
+            <summary>
+            New short message to replace existing message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppReplaceSm.SmLength">
+            <summary>
+            The length of the short message.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.MessageLcd3">
+            <summary>
+            Provides some common attributes for data_sm, submit_sm, and submit_multi.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.MessageLcd3.#ctor">
+            <summary>
+            Groups construction tasks for subclasses.  Sets source address TON to international, 
+            source address NPI to ISDN, source address to "", registered delivery type to none, 
+            ESM class to 0, and data coding to SMSC default.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.MessageLcd3.#ctor(System.Byte[])">
+            <summary>
+            Creates a new MessageLcd3 for incoming PDUs.
+            </summary>
+            <param name="incomingBytes">The incoming bytes to decode.</param>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.ServiceType">
+            <summary>
+            The service type of the message.  Null values are treated as empty strings.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.EsmClass">
+            <summary>
+            Indicates Message Mode and Message Type.  See the SMSC version 3.4 specification 
+            for details on setting this.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.DataCoding">
+            <summary>
+            Defines the encoding scheme of the short message user data.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.SourcePort">
+            <summary>
+            The application port number associated with the source address of the message.
+            This parameter should be present for WAP applications.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.SourceAddressSubunit">
+            <summary>
+            The subcomponent in the destination device which created the user data.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.DestinationPort">
+            <summary>
+            The application port number associated with the destination address of the
+            message.  This parameter should be present for WAP applications.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.SarMsgRefNumber">
+            <summary>
+            The reference number for a particular concatenated short message.  Both
+            SarTotalSegments and SarSegmentSeqnum need to be set in conjunction with this
+            property.  In addition, this must be the same for each segment.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.SarTotalSegments">
+            <summary>
+            Indicates the total number of short messages within the concatenated short
+            message.  Both SarMsgRefNumber and SarSegmentSeqNum need to be set in
+            conjunction with this property.  In addition, this must be the same for each
+            segment.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.SarSegmentSeqnum">
+            <summary>
+            The sequence number of a particular short message within the concatenated
+            short message.  Both SarMsgRefNumber and SarTotalSegments need to be set in
+            conjunction with this property.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.PayloadType">
+            <summary>
+            Defines the type of payload.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.MessagePayload">
+            <summary>
+            Contains the extended short message user data.  Up to 64K octets can be
+            transmitted.  The limit for this is network/SMSC dependent.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.PrivacyIndicator">
+            <summary>
+            The privacy level of the message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.UserMessageReference">
+            <summary>
+            ESME assigned message reference number.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.MsMsgWaitFacilities">
+            <summary>
+            Allows an indication to be provided to an MS that there are
+            messages waiting for the subscriber on systems on the PLMN. The indication
+            can be an icon on the MS screen or other MMI indication.
+            See section 5.3.2.13 for details on how to set this.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.MsValidity">
+            <summary>
+            Provides a MS with validity information associated with the received
+            short message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.SmsSignal">
+            <summary>
+            Provides a TDMA MS station with alert tone information associated with the
+            received short message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.DestinationAddrSubunit">
+            <summary>
+            The subcomponent in the destination device for which the user data is intended.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.AlertOnMsgDelivery">
+            <summary>
+            Tells a mobile station to alert the user when the short message arrives at the MS.
+                        Note: there is no value part associated with this parameter.
+            Any value you pass in will be discarded.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.LanguageIndicator">
+            <summary>
+            The language of the short message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.DisplayTime">
+            <summary>
+            Associates a display time with the short message on the MS.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.CallbackNum">
+            <summary>
+            Associates a call back number with the message.  See section 5.3.2.36 of the
+            SMPP spec for details.  This must be between 4 and 19 characters in length.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.CallbackNumPresInd">
+            <summary>
+            Controls the presentation indication and screening of the CallBackNumber at the
+            mobile station.  You must also use the callback_num parameter with this.
+            See section 5.3.2.37 of the SMPP spec for details in how to set this.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.CallbackNumAtag">
+            <summary>
+            Alphanumeric display tag for call back number.  This must be less than or
+            equal to 65 characters in length.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.SourceSubaddress">
+            <summary>
+            Specifies a subaddress associated with the originator of the message.
+            See section 5.3.2.15 of the SMPP spec for details on
+            setting this parameter.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd3.DestinationSubaddress">
+            <summary>
+            Specifies a subaddress associated with the receiver of the message.
+            See section 5.3.2.15 of the SMPP spec for details on
+            setting this parameter.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppBind">
+            <summary>
+            Class for a bind request Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppBind.#ctor">
+            <summary>
+            Constructs a bind request.  Sets system ID, password, system type, and address 
+            range to empty strings.  Sets interface version to v3.4, address TON to 
+            international, address NPI to ISDN, and sets to bind as a transceiver.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppBind.#ctor(System.Byte[])">
+            <summary>
+            Constructs a bind request.  Sets system ID, password, system type, and address 
+            range to empty strings.  Sets interface version to v3.4, address TON to 
+            international, address NPI to ISDN, and sets to bind as a transceiver.
+            </summary>
+            <param name="incomingBytes">The incoming bytes from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppBind.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppBind.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppBind.DecodeSmscResponse">
+            <summary>
+            This decodes the submit_sm Pdu.  The Pdu has basically the same format as
+            the submit_sm Pdu, but in this case it is a response.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppBind.BindType">
+            <summary>
+            The binding type: transmitter, receiver, or transceiver.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppBind.SystemId">
+            <summary>
+            The ESME system requesting to bind with the SMSC.  Set to null for default value.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppBind.Password">
+            <summary>
+            Used by the SMSC to authenticate the ESME requesting to bind.  
+            Set to null for default value.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppBind.SystemType">
+            <summary>
+            The type of ESME system requesting to bind with the SMSC.  
+            Set to null for default value.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppBind.AddressRange">
+            <summary>
+            The ESME address range.  If not known, set to null.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppBind.InterfaceVersion">
+            <summary>
+            The version of the SMPP protocol supported by the ESME.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppBind.AddressTon">
+            <summary>
+            Indicates type of number of ESME address.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppBind.AddressNpi">
+            <summary>
+            Numbering plan indicator for ESME address.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppBind.BindingType">
+            <summary>
+            Binding types for the SMPP bind request.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Request.SmppBind.BindingType.BindAsReceiver">
+            <summary>
+            BindAsReceiver
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Request.SmppBind.BindingType.BindAsTransmitter">
+            <summary>
+            BindAsTransmitter
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Request.SmppBind.BindingType.BindAsTransceiver">
+            <summary>
+            BindAsTransceiver
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppCancelSm">
+            <summary>
+            Cancels one or more previous short messages. A particular message or all messages
+            for a particular source, destination and service_type can be cancelled.
+                        From the SMPP spec:
+             If the message_id is set to the ID of a previously submitted message, then
+            provided the source address supplied by the ESME matches that of the stored
+            message, that message will be cancelled.
+             If the message_id is null, all outstanding undelivered messages with matching
+            source and destination addresses given in the Pdu are cancelled. If provided,
+            service_type is included in this matching.
+            Where the original submit_sm, data_sm or submit_multi source address was
+            defaulted to null, then the source address in the cancel_sm command should also
+            be null.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppCancelSm.#ctor">
+             <summary>
+             Creates an SMPP Cancel SM Pdu.  Sets message ID and service type to empty strings 
+            (null), sets the destination TON to international and the destination NPI to ISDN, 
+             and sets the command status to 0.
+             </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppCancelSm.#ctor(System.Byte[])">
+             <summary>
+             Creates an SMPP Cancel SM Pdu.  Sets message ID and service type to empty strings 
+            (null), sets the destination TON to international and the destination NPI to ISDN, 
+             and sets the command status to 0.
+             </summary>
+             <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppCancelSm.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppCancelSm.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppCancelSm.DecodeSmscResponse">
+            <summary>
+            This decodes the cancel_sm Pdu.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppCancelSm.MessageId">
+            <summary>
+            Message ID of the message to be cancelled. This must be the SMSC assigned Message 
+            ID of the original message.  Set to null if cancelling a group of messages.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppCancelSm.ServiceType">
+            <summary>
+            Set to indicate SMS Application service, if cancellation of a group of application 
+            service messages is desired.  Otherwise set to null.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppCancelSm.DestinationAddressTon">
+            <summary>
+            Type of number of destination SME address of the message(s)to be cancelled.  
+            This must match that supplied in the original message submission request.  
+            This can be set to null if the message ID is provided.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppCancelSm.DestinationAddressNpi">
+            <summary>
+            Numbering Plan Indicator of destination SME address of the message(s))to be 
+            cancelled.  This must match that supplied in the original message submission request.  
+            This can be set to null when the message ID is provided.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppCancelSm.DestinationAddress">
+            <summary>
+            Destination address of message(s)to be cancelled.  This must match that supplied in 
+            the original message submission request. This can be set to null when the message ID 
+            is provided.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppDataSm">
+            <summary>
+            This command is used to transfer data between the SMSC and the ESME(and can be
+            used by both).  This is an alternative to the submit_sm and deliver_sm commands.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppDataSm.#ctor">
+            <summary>
+            Creates a data_sm Pdu.  Sets the destination TON to international, the destination 
+            NPI to ISDN, and the command status to 0.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppDataSm.#ctor(System.Byte[])">
+            <summary>
+            Creates a data_sm Pdu.  Sets the destination TON to international, the destination 
+            NPI to ISDN, and the command status to 0.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppDataSm.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppDataSm.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppDataSm.DecodeSmscResponse">
+            <summary>
+            This decodes the cancel_sm Pdu.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.DestinationAddressTon">
+            <summary>
+            Type of number of destination SME address of the message(s)to be cancelled.  
+            This must match that supplied in the original message submission request.  
+            This can be set to null if the message ID is provided.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.DestinationAddressNpi">
+            <summary>
+            Numbering Plan Indicator of destination SME address of the message(s))to be 
+            cancelled.  This must match that supplied in the original message submission request.  
+            This can be set to null when the message ID is provided.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.DestinationAddress">
+            <summary>
+            Destination address of message(s)to be cancelled.  This must match that supplied in 
+            the original message submission request. This can be set to null when the message ID 
+            is provided.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.SourceNetworkType">
+            <summary>
+            The correct network associated with the originating device.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.SourceBearerType">
+            <summary>
+            The correct bearer type for the delivering the user data to the destination.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.SourceTelematicsId">
+            <summary>
+            The telematics identifier associated with the source.  The value part
+            has yet to be defined in the specs as of 07/20/2004.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.DestNetworkType">
+            <summary>
+            The correct network for the destination device.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.DestBearerType">
+            <summary>
+            The correct bearer type for the delivering the user data to the destination.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.DestTelematicsId">
+            <summary>
+            The telematics identifier associated with the destination.  The value part
+            has yet to be defined in the specs as of 07/20/2004.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.MoreMessagesToSend">
+            <summary>
+            If true, this indicates that there are more messages to follow for the
+            destination SME.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.QosTimeToLive">
+            <summary>
+            Time to live as a relative time in seconds from submission.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.SetDpf">
+            <summary>
+            Sets the Delivery Pending Flag on delivery failure.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.ReceiptedMessageId">
+            <summary>
+            SMSC message ID of message being receipted.  Should be present for SMSC
+            Delivery Receipts and Intermediate Notifications.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.MessageState">
+            <summary>
+            Message State.  Should be present for SMSC Delivery Receipts and Intermediate
+            Notifications.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.NetworkErrorCode">
+            <summary>
+            Network error code.  May be present for SMSC Delivery Receipts and
+            Intermediate Notifications.  See section 5.3.2.31 for more information.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.UserResponseCode">
+            <summary>
+            A user response code. The actual response codes are implementation specific.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.NumberOfMessages">
+            <summary>
+            Indicates the number of messages stored in a mail box.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.ItsReplyType">
+            <summary>
+            Indicates and controls the MS users reply method to an SMS delivery message
+            received from the network.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppDataSm.ItsSessionInfo">
+            <summary>
+            Session control information for Interactive Teleservice.
+                        See section 5.3.2.43 of the SMPP spec for how to set this.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppEnquireLink">
+            <summary>
+            Defines the SMPP enquire_link Pdu.  This is basically just the header.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppEnquireLink.#ctor">
+            <summary>
+            Creates an enquire_link Pdu.  Sets command status and command ID.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppEnquireLink.#ctor(System.Byte[])">
+            <summary>
+            Creates an enquire_link Pdu.  Sets command status and command ID.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppEnquireLink.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppEnquireLink.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppEnquireLink.DecodeSmscResponse">
+            <summary>
+            This decodes the query_sm Pdu.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppGenericNack">
+            <summary>
+            Class to represent a generic negative acknowledgment.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppGenericNack.#ctor">
+            <summary>
+            Creates a new generic NACK.  Sets the error code to 0.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppGenericNack.#ctor(System.Byte[])">
+            <summary>
+            Creates a new generic NACK.
+            </summary>
+            <param name="incomingBytes">The incoming bytes from the ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppGenericNack.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppGenericNack.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppGenericNack.DecodeSmscResponse">
+            <summary>
+            This decodes the query_sm Pdu.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppQuerySm">
+            <summary>
+            This class defines a query_sm ESME originated Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppQuerySm.#ctor">
+            <summary>
+            Creates a query_sm Pdu.  Sets source address TON to international, source address 
+            NPI to ISDN, source address to "", and message ID to an empty string.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppQuerySm.#ctor(System.Byte[])">
+            <summary>
+            Creates a new SmppQuerySm for incoming PDUs.
+            </summary>
+            <param name="incomingBytes">The incoming bytes to decode.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppQuerySm.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppQuerySm.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppQuerySm.DecodeSmscResponse">
+            <summary>
+            This decodes the query_sm Pdu.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppQuerySm.MessageId">
+            <summary>
+            The ID of the message.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.MessageLcd2">
+            <summary>
+            This class encapsulates common attributes for submit_sm and submit_multi Pdus.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Request.MessageLcd2.SHORT_MESSAGE_LIMIT">
+            <summary>
+            Limit of short message.
+            </summary>
+        </member>
+        <member name="F:RoaminSMPP.Packet.Request.MessageLcd2._SmLength">
+            <summary>
+            The length of the short message.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.MessageLcd2.#ctor">
+            <summary>
+            Groups construction tasks for subclasses.  Sets source address TON to international, 
+            source address NPI to ISDN, source address to "", registered delivery type to none, 
+            ESM class to 0, data coding to SMSC default, protocol ID to v3.4, priority to level 1,
+            validity period to default, replace if present to false, default message ID to 0, 
+            and the short message to an empty string.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.MessageLcd2.#ctor(System.Byte[])">
+            <summary>
+            Creates a new MessageLcd2 for incoming PDUs.
+            </summary>
+            <param name="incomingBytes">The incoming bytes to decode.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.MessageLcd2.GetBytesAfterDestination">
+            <summary>
+            Creates the bytes after the destination address bytes.  This also inserts the TLV
+            table data.  Common to both submit and submit multiple.
+            </summary>
+            <returns>The bytes in the Pdu before the destination address(es).</returns>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd2.ProtocolId">
+            <summary>
+            Protocol Identifier; network specific field.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd2.PriorityFlag">
+            <summary>
+            The priority level of the message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd2.ScheduleDeliveryTime">
+            <summary>
+            Scheduled delivery time for the message delivery.  Set to null for immediate 
+            delivery.  Otherwise, use YYMMDDhhmmsstnn as the format.  See section 7.1.1 of 
+            the SMPP spec for more details.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd2.ValidityPeriod">
+            <summary>
+            The validity period of this message.  Set to null to request the SMSC default 
+            validity period.  Otherwise, use YYMMDDhhmmsstnn as the format.  See section 7.1.1 of 
+            the SMPP spec for more details.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd2.ReplaceIfPresentFlag">
+            <summary>
+            Flag indicating if submitted message should replace an existing message.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd2.SmDefaultMessageId">
+            <summary>
+            Allows use of a canned message from the SMSC.  If not using an SMSC canned message, 
+            set to 0.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd2.ShortMessage">
+            <summary>
+            The short message to send, up to 160 octets.  If you need more length, use the 
+            MessagePayload property.  Do not use both at the same time!  Setting this to null 
+            will result in an empty string.  This can be either a string or a byte array; anything 
+            else will result in an exception.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.MessageLcd2.SmLength">
+            <summary>
+            The length of the short message.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppSubmitMulti">
+            <summary>
+            Defines a submit_multi Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppSubmitMulti.#ctor">
+            <summary>
+            Creates a submit_multi Pdu.  Sets source address TON to international, 
+            source address NPI to ISDN, source address to "", registered delivery type to none, 
+            ESM class to 0, data coding to SMSC default, protocol ID to v3.4, priority to level 1,
+            validity period to default, replace if present to false, default message ID to 0, 
+            the short message to an empty string, the number of destinations to 0 and the 
+            destination addresses to null.  Use the DestAddrFactory class to create 
+            destination addresses.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppSubmitMulti.#ctor(System.Byte[])">
+            <summary>
+            Creates a submit_multi Pdu.  Sets source address TON to international, 
+            source address NPI to ISDN, source address to "", registered delivery type to none, 
+            ESM class to 0, data coding to SMSC default, protocol ID to v3.4, priority to level 1,
+            validity period to default, replace if present to false, default message ID to 0, 
+            the short message to an empty string, the number of destinations to 0 and the 
+            destination addresses to null.  Use the DestAddrFactory class to create 
+            destination addresses.
+            </summary>
+            <param name="incomingBytes">The incoming bytes from an ESME</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppSubmitMulti.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppSubmitMulti.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppSubmitMulti.DecodeSmscResponse">
+            <summary>
+            Decodes the submit_multi response from the SMSC.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppSubmitMulti.NumberOfDestinations">
+            <summary>
+            The number of destinations to send to.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppSubmitMulti.DestinationAddresses">
+            <summary>
+            The destination addresses that will be sent to.  This will set the number of 
+            destination addresses as well.  Passing null in will set them to zero.  Calling the 
+            accessor will get you a cloned array.  You must use the mutator to modify the values.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppSubmitSm">
+            <summary>
+            Defines an SMPP submit request.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppSubmitSm.#ctor">
+            <summary>
+            Creates a submit Pdu.  Sets source address TON to international, 
+            source address NPI to ISDN, source address to "", registered delivery type to none, 
+            ESM class to 0, data coding to SMSC default, protocol ID to v3.4, priority to level 1,
+            validity period to default, replace if present to false, default message ID to 0, 
+            the short message to an empty string, the destination address TON to international, 
+            destination address NPI to ISDN, the destination address to "", the command status 
+            to 0, and the Command ID to submit_sm.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppSubmitSm.#ctor(System.Byte[])">
+            <summary>
+            Creates a new SmppSubmitSm for incoming PDUs.
+            </summary>
+            <param name="incomingBytes">The incoming bytes to decode.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppSubmitSm.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppSubmitSm.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppSubmitSm.DecodeSmscResponse">
+            <summary>
+            This decodes the submit_sm Pdu.  The Pdu has basically the same format as
+            the submit_sm Pdu, but in this case it is a response.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppSubmitSm.DestinationAddressTon">
+            <summary>
+            Type of Number for destination.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppSubmitSm.DestinationAddressNpi">
+            <summary>
+            Numbering Plan Indicator for destination.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppSubmitSm.DestinationAddress">
+            <summary>
+            Destination address of this short message.  Null values will be converted to an
+            empty string.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppSubmitSm.MoreMessagesToSend">
+            <summary>
+            Indicates to the SMSC that there are further messages for the same destination.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppSubmitSm.UserResponseCode">
+            <summary>
+            A response code set by the user in a User Acknowledgement/Reply message. The
+            response codes are application specific.  From the SMPP spec:
+                        0 to 255(IS-95 CDMA)
+            0 to 15(CMT-136 TDMA)
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppSubmitSm.NumberOfMessages">
+            <summary>
+            Used to indicate the number of messages stored in a mailbox.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppSubmitSm.ItsReplyType">
+            <summary>
+            From the SMPP spec:
+            The its_reply_type parameter is a required parameter for the CDMA Interactive
+            Teleservice as defined by the Korean PCS carriers [KORITS]. It indicates and
+            controls the MS users reply method to an SMS delivery message received from
+            the ESME.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppSubmitSm.ItsSessionInfo">
+            <summary>
+            From the SMPP spec:
+            The its_session_info parameter is a required parameter for the CDMA Interactive
+            Teleservice as defined by the Korean PCS carriers [KORITS]. It contains control
+            information for the interactive session between an MS and an ESME.
+                        See section 5.3.2.43 of the SMPP spec for how to set this.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Packet.Request.SmppSubmitSm.UssdServiceOp">
+            <summary>
+            From the SMPP spec:
+            The ussd_service_op parameter is required to define the USSD service operation
+            when SMPP is being used as an interface to a(GSM)USSD system.
+                        See 5.3.2.44 of the SMPP spec for how to set this.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Packet.Request.SmppUnbind">
+            <summary>
+            Class to issue an unbind request to the SMSC.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppUnbind.#ctor">
+            <summary>
+            Creates an unbind PDU.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppUnbind.#ctor(System.Byte[])">
+            <summary>
+            Creates an unbind PDU.
+            </summary>
+            <param name="incomingBytes">The bytes received from an ESME.</param>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppUnbind.InitPdu">
+            <summary>
+            Initializes this Pdu.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppUnbind.ToMsbHexEncoding">
+            <summary>
+             Gets the hex encoding(big-endian)of this Pdu.
+            </summary>
+            <return>The hex-encoded version of the Pdu</return>
+        </member>
+        <member name="M:RoaminSMPP.Packet.Request.SmppUnbind.DecodeSmscResponse">
+            <summary>
+            This decodes the query_sm Pdu.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Utility.DestinationAddress">
+            <summary>
+            Marker/utility class to define destination addresses for the submit_multi.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Utility.DestinationAddress.#ctor(System.Byte[]@)">
+            <summary>
+            Creates an DestinationAddress address.  This will trim down the address given to
+            it for use in future operations.
+            </summary>
+            <param name="address">The bytes of the response.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.DestinationAddress.#ctor(RoaminSMPP.Packet.Pdu.TonType,RoaminSMPP.Packet.Pdu.NpiType,System.String)">
+            <summary>
+            Creates a new DestinationAddress.
+            </summary>
+            <param name="destinationAddressTon">Type of number for destination SME.</param>
+            <param name="destinationAddressNpi">Numbering Plan Indicator for destination SME</param>
+            <param name="destinationAdress">Destination Address of destination SME</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.DestinationAddress.#ctor(System.String)">
+            <summary>
+            Creates a new DestinationAddress.
+            </summary>
+            <param name="distributionList">Distribution list of destination address</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.DestinationAddress.Clone">
+            <summary>
+            Clones this DestinationAddress.
+            </summary>
+            <returns>The cloned object.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Utility.DestinationAddress.Equals(System.Object)">
+            <summary>
+            Checks to see if two UnsuccessAddresses are equal.
+            </summary>
+            <param name="obj">The UnsuccessAddresses to check</param>
+            <returns>true if obj and this are equal</returns>
+        </member>
+        <member name="M:RoaminSMPP.Utility.DestinationAddress.GetHashCode">
+            <summary>
+            Gets the hash code for this object.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:RoaminSMPP.Utility.DestinationAddress.DestinationAddressTon">
+            <summary>
+            Type of number for destination SME.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Utility.DestinationAddress.DestinationAddressNpi">
+            <summary>
+            Numbering Plan Indicator for destination SME
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Utility.DestinationAddress.DestAddress">
+            <summary>
+            Destination Address of destination SME
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Utility.DestinationAddress.DistributionList">
+            <summary>
+            Distribution list of destination address
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Utility.DestinationAddress.IsDistributionList">
+            <summary>
+            Set to true if this DestinationAddress is a DistributionList.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Utility.PduFactory">
+            <summary>
+            Takes incoming packets from an input stream and generates
+            PDUs based on the command field.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Utility.PduFactory.#ctor">
+            <summary>
+            Constructor.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Utility.PduFactory.GetPduQueue(System.Byte[])">
+            <summary>
+            Factory method to generate the PDU.
+            </summary>
+            <param name="incomingPDUs">The SMSC response.</param>
+            <returns>The PDU.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Utility.PduFactory.GetPDU(System.Byte[])">
+            <summary>
+            Gets a single PDU based on the response bytes.
+            </summary>
+            <param name="response">The SMSC response.</param>
+            <returns>The PDU corresponding to the bytes.</returns>
+        </member>
+        <member name="T:RoaminSMPP.Utility.SmppStringUtil">
+            <summary>
+            Catchall utility class for dealing with strings in SMPP packets.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Utility.SmppStringUtil.#ctor">
+            <summary>
+            Do not instantiate.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Utility.SmppStringUtil.GetStringFromBody(System.Byte[]@,System.Int32,System.Int32)">
+            <summary>
+            Gets the next string from the given byte array.  Note: this
+            method also trims off the string from the byte array, so that it can be easily 
+            used in subsequent operations.  You have to know the string length; this will not 
+            look for a null character(as it is meant to be used with non-null terminated 
+            strings).
+            </summary>
+            <param name="remainder">The byte array to pull the string from.
+            This should not contain extraneous data.</param>
+            <param name="startIndex">The index to start getting the string from.
+            Usually zero.</param>
+            <param name="endIndex">The index to end at.  The character at
+            this index will not be included.</param>
+            <returns>The string retrieved.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Utility.SmppStringUtil.GetCStringFromBody(System.Byte[]@)">
+            <summary>
+            Gets the next null-terminated string from the given byte array.  Note: this
+            method also trims off the string(including the null character)from the
+            byte array, so that it can be easily used in subsequent operations.
+            This is equivalent to GetCStringFromBody(ref remainder, 0).
+            </summary>
+            <param name="remainder">The byte array to
+            pull the string from.  This should not
+            contain extraneous data.</param>
+            <returns>The string retrieved.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Utility.SmppStringUtil.GetCStringFromBody(System.Byte[]@,System.Int32)">
+            <summary>
+            Gets the next null-terminated string from the given byte array.  Note: this
+            method also trims off the string(including the null character)from the
+            byte array, so that it can be easily used in subsequent operations.
+            </summary>
+            <param name="remainder">The byte array to
+            pull the string from.  This should not
+            contain extraneous data.</param>
+            <param name="startIndex">The index to start getting the string from.
+            Usually zero.</param>
+            <returns>The string retrieved.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Utility.SmppStringUtil.GetCStringFromBody(System.Byte[]@,System.Int32,System.Int32)">
+            <summary>
+            Gets the next null-terminated string from the given byte array.  Note: this
+            method also trims off the string from the byte array, so that it can be easily used 
+            in subsequent operations.
+            </summary>
+            <param name="remainder">The byte array to pull the string from.
+            This should not contain extraneous data.</param>
+            <param name="startIndex">The index to start getting the string from.
+            Usually zero.</param>
+            <param name="endIndex">The index to end at.  The character at
+            this index will not be included.</param>
+            <returns>The string retrieved.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Utility.SmppStringUtil.ArrayCopyWithNull(System.Byte[])">
+            <summary>
+            Copies the data from the source array, appending a null character to the end.
+            This really only has a use for creating null terminated arrays that represent
+            strings.
+            </summary>
+            <param name="source">The source array to copy from.</param>
+            <returns></returns>
+        </member>
+        <member name="T:RoaminSMPP.Utility.TlvTable">
+            <summary>
+            Tag, length, value table for SMPP PDUs.  The methods in this class assume 
+            that the tag passed in is already in network byte order.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Utility.TlvTable.#ctor">
+            <summary>
+            Creates a TLV table.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Utility.TlvTable.TranslateTlvDataIntoTable(System.Byte[])">
+            <summary>
+            Converts the TLV byte array data into the Hashtable.  This will check if
+            the passed in data is null or is an empty array so you don't need to
+            check it before calling this method.  This is equivalent to
+            TranslateTlvDataIntoTable(tlvData, 0).
+            </summary>
+            <param name="tlvData">The bytes of TLVs.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.TlvTable.TranslateTlvDataIntoTable(System.Byte[],System.Int32)">
+            <summary>
+            Converts the TLV byte array data into the Hashtable.  This will check if
+            the passed in data is null or is an empty array so you don't need to check
+            it before calling this method.
+            </summary>
+            <param name="tlvData">The bytes of TLVs.</param>
+            <param name="index">The index of the byte array to start at.  This is here
+            because in some instances you may not want to start at the
+            beginning.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.TlvTable.InjectTlv(System.Byte[],System.Int32@)">
+            <summary>
+            Using the given tlvData byte array and the given starting index, inserts
+            the tag and value(as a byte array)into the hashtable.  Note that the
+            tlvData needs to be in the SMPP v3.4 format(tag, length, value).  This 
+            assumes that the tag and length (from the tlvData array) are in network byte order.
+                        Note also that this will advance the index by the TLV data length so that
+            it may be used for consecutive reads from the same array.
+            </summary>
+            <param name="tlvData">The TLV data as a byte array.</param>
+            <param name="index">The index of the array to start reading from.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.TlvTable.GetOptionalParamBytes(System.UInt16)">
+            <summary>
+            Gets the optional parameter bytes associated with the given tag.
+            </summary>
+            <param name="tag">The tag in TLV.</param>
+            <returns>The optional parameter bytes, null if not found.</returns>
+            <exception cref="T:System.ApplicationException">Thrown if the tag cannot be found.</exception>
+        </member>
+        <member name="M:RoaminSMPP.Utility.TlvTable.GetOptionalParamString(System.UInt16)">
+            <summary>
+            Gets the optional parameter string associated with the given tag.
+            </summary>
+            <param name="tag">The tag in TLV.</param>
+            <returns>The optional parameter string, the empty string if not found.
+            </returns>
+            <exception cref="T:System.ApplicationException">Thrown if the tag cannot be found.</exception>
+        </member>
+        <member name="M:RoaminSMPP.Utility.TlvTable.SetOptionalParamBytes(System.UInt16,System.Byte[])">
+            <summary>
+            Sets the given TLV(as a byte array)into the table.  This ignores null values.
+            </summary>
+            <param name="tag">The tag in TLV.</param>
+            <param name="val">The value of this TLV.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.TlvTable.SetOptionalParamString(System.UInt16,System.String)">
+            <summary>
+            Sets the given TLV(as a string)into the table.  This ignores
+            null values.
+            </summary>
+            <param name="tag">The tag in TLV.</param>
+            <param name="val">The value of this TLV.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.TlvTable.UpdateOptionalParamBytes(System.UInt16,System.Byte[])">
+            <summary>
+            Allows the updating of TLV values.
+            </summary>
+            <param name="tag">The tag in TLV.</param>
+            <param name="val">The value of this TLV.</param>
+            <exception cref="T:System.ApplicationException">Thrown if the tag cannot be found.</exception>
+        </member>
+        <member name="M:RoaminSMPP.Utility.TlvTable.UpdateOptionalParamString(System.UInt16,System.String)">
+            <summary>
+            Allows the updating of TLV values.
+            </summary>
+            <param name="tag">The tag in TLV.</param>
+            <param name="val">The value of this TLV.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.TlvTable.GenerateByteEncodedTlv">
+            <summary>
+            Iterates through the hashtable, gathering the tag, length, and
+            value as it goes.  For each entry, it encodes the TLV into a byte
+            array.  It is assumed that the tags and length are already in network 
+            byte order.
+            </summary>
+            <returns>An ArrayList consisting of byte array entries, each of which
+            is a TLV.  Returns an empty ArrayList if the TLV table is empty.</returns>
+        </member>
+        <member name="T:RoaminSMPP.Utility.UnsignedNumConverter">
+            <summary>
+            Utility class to do big-endian to little endian conversions and the like.
+            This is for unsigned numbers only; use the IPAddress class for signed values.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Utility.UnsignedNumConverter.#ctor">
+            <summary>
+            Do not instantiate.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Utility.UnsignedNumConverter.SwapByteOrdering(System.UInt32)">
+            <summary>
+            Converts from big-endian to little endian and vice versa.
+            </summary>
+            <param name="val">The value to swap.</param>
+            <returns>The byte-swapped value, 0 if val &lt; 0</returns>
+        </member>
+        <member name="M:RoaminSMPP.Utility.UnsignedNumConverter.SwapByteOrdering(System.UInt16)">
+            <summary>
+            Converts from big-endian to little endian and vice versa.  Don't use
+            for negative integers; it has not been tested for that.
+            </summary>
+            <param name="val">The value to swap.</param>
+            <returns>The byte-swapped value, 0 if val &lt; 0</returns>
+        </member>
+        <member name="T:RoaminSMPP.Utility.UnsuccessAddress">
+            <summary>
+            Defines an Unsuccess address, used with the response to submit_multi.
+            The spec states that both SME addresses and distribution lists can be
+            used here, but it only defines for the SME address, so that is all that
+            this will handle.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Utility.UnsuccessAddress.#ctor(System.Byte[]@)">
+            <summary>
+            Creates an Unsuccess address.  This will trim down the address given to
+            it for use in future operations.
+            </summary>
+            <param name="address">The bytes of the response.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.UnsuccessAddress.#ctor(RoaminSMPP.Packet.Pdu.TonType,RoaminSMPP.Packet.Pdu.NpiType,System.String,System.UInt32)">
+            <summary>
+            Creates a new UnsuccessAdress.
+            </summary>
+            <param name="destinationAddressTon">Type of number for destination SME.</param>
+            <param name="destinationAddressNpi">Numbering Plan Indicator for destination SME</param>
+            <param name="destinationAdress">Destination Address of destination SME</param>
+            <param name="ErrorStatusCode">Indicates the success or failure of the submit_multi request 
+            to this SME address.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.UnsuccessAddress.Clone">
+            <summary>
+            Clones this UnsuccessAddress.
+            </summary>
+            <returns>The cloned object.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Utility.UnsuccessAddress.Equals(System.Object)">
+            <summary>
+            Checks to see if two UnsuccessAddresses are equal.
+            </summary>
+            <param name="obj">The UnsuccessAddresses to check</param>
+            <returns>true if obj and this are equal</returns>
+        </member>
+        <member name="M:RoaminSMPP.Utility.UnsuccessAddress.GetHashCode">
+            <summary>
+            Gets the hash code for this object.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="P:RoaminSMPP.Utility.UnsuccessAddress.DestinationAddressTon">
+            <summary>
+            Type of number for destination SME.
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Utility.UnsuccessAddress.DestinationAddressNpi">
+            <summary>
+            Numbering Plan Indicator for destination SME
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Utility.UnsuccessAddress.DestinationAddress">
+            <summary>
+            Destination Address of destination SME
+            </summary>
+        </member>
+        <member name="P:RoaminSMPP.Utility.UnsuccessAddress.ErrorStatusCode">
+            <summary>
+            Indicates the success or failure of the submit_multi request to this
+            SME address.
+            </summary>
+        </member>
+        <member name="T:RoaminSMPP.Utility.PduUtil">
+            <summary>
+            Holds common functionality for requests.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Utility.PduUtil.#ctor">
+            <summary>
+            Do not instantiate
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Utility.PduUtil.InsertShortMessage(System.Collections.ArrayList,System.Object)">
+            <summary>
+            Inserts the short message into the PDU ArrayList.
+            </summary>
+            <param name="pdu">The PDU to put the short message into.</param>
+            <param name="ShortMessage">The short message to insert.</param>
+            <returns>The length of the short message.</returns>
+        </member>
+        <member name="M:RoaminSMPP.Utility.PduUtil.SetReceiptedMessageId(RoaminSMPP.Packet.Pdu,System.String)">
+            <summary>
+            Takes the given PDU and inserts a receipted message ID into the TLV table.
+            </summary>
+            <param name="pdu">The PDU to operate on.</param>
+            <param name="val">The value to insert.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.PduUtil.SetNetworkErrorCode(RoaminSMPP.Packet.Pdu,System.String)">
+            <summary>
+            Takes the given PDU and inserts a network error code into the TLV table.
+            </summary>
+            <param name="pdu">The PDU to operate on.</param>
+            <param name="val">The value to insert.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.PduUtil.SetItsSessionInfo(RoaminSMPP.Packet.Pdu,System.String)">
+            <summary>
+            Takes the given PDU and inserts ITS session info into the TLV table.
+            </summary>
+            <param name="pdu">The PDU to operate on.</param>
+            <param name="val">The value to insert.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.PduUtil.SetDestSubaddress(RoaminSMPP.Packet.Pdu,System.String)">
+            <summary>
+            Takes the given PDU and inserts a destination subaddress into the TLV table.
+            </summary>
+            <param name="pdu">The PDU to operate on.</param>
+            <param name="val">The value to insert.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.PduUtil.SetSourceSubaddress(RoaminSMPP.Packet.Pdu,System.String)">
+            <summary>
+            Takes the given PDU and inserts a source subaddress into the TLV table.
+            </summary>
+            <param name="pdu">The PDU to operate on.</param>
+            <param name="val">The value to insert.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.PduUtil.SetCallbackNum(RoaminSMPP.Packet.Pdu,System.String)">
+            <summary>
+            Takes the given PDU and inserts a callback number into the TLV table.
+            </summary>
+            <param name="pdu">The PDU to operate on.</param>
+            <param name="val">The value to insert.</param>
+        </member>
+        <member name="M:RoaminSMPP.Utility.PduUtil.SetMessagePayload(RoaminSMPP.Packet.Pdu,System.Object)">
+            <summary>
+            Takes the given PDU and inserts a message payload into its TLV table.
+            </summary>
+            <param name="pdu">The PDU to operate on.</param>
+            <param name="val">The value to insert.</param>
+        </member>
+        <member name="T:RoaminSMPP.Tests.PduTest">
+            <summary>
+            Tests our enterprise versions of the PDU.
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppSubmitMultiResp">
+            <summary>
+            Tests the SmppSubmitMultiResp class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppSubmitMultiDestAddresses">
+            <summary>
+            Tests the SmppSubmitMulti class using destination addresses (not distribution lists).
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppReplaceSmResp">
+            <summary>
+            Tests the SmppReplaceSmResp class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppReplaceSm">
+            <summary>
+            Tests the SmppReplaceSm class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppOutbind">
+            <summary>
+            Tests the SmppOutbind class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppDeliverSmResp">
+            <summary>
+            Tests the SmppDeliverSmResp class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppDeliverSm">
+            <summary>
+            Tests the SmppDeliverSm class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppDataSmResp">
+            <summary>
+            Tests the SmppDataSmResp class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppDataSm">
+            <summary>
+            Tests the SmppDataSm class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppCancelSmResp">
+            <summary>
+            Tests the SmppCancelSmResp class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppCancelSm">
+            <summary>
+            Tests the SmppCancelSm class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppAlertNotification">
+            <summary>
+            Tests the SmppBindResp class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppBindResp">
+            <summary>
+            Tests the SmppBindResp class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppBind">
+            <summary>
+            Tests the SmppBind class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppUnbindResp">
+            <summary>
+            Tests the SmppUnbindResp class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppUnbind">
+            <summary>
+            Tests the SmppUnbind class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppEnquireLinkResp">
+            <summary>
+            Tests the SmppEnquireLinkResp class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppEnquireLink">
+            <summary>
+            Tests the SmppEnquireLink class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppGenericNackResp">
+            <summary>
+            Tests the SmppGenericNackResp class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppGenericNack">
+            <summary>
+            Tests the SmppGenericNack class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppQuerySmResp">
+            <summary>
+            Tests the SmppQuerySmResp class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppQuerySm">
+            <summary>
+            Tests the SmppQuerySm class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppSubmitSmResp">
+            <summary>
+            Tests the SmppSubmitSmResp class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppSubmitSm">
+            <summary>
+            Tests the SmppSubmitSm class
+            </summary>
+        </member>
+        <member name="M:RoaminSMPP.Tests.PduTest.TestSmppSubmitSmCustomParams">
+            <summary>
+            Tests the SmppSubmitSm class with custom optional parameters
+            </summary>
+        </member>
+    </members>
+</doc>

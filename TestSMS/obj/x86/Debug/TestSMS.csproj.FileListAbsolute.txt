@@ -1,0 +1,16 @@
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\bin\Debug\TestSMS.exe
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\bin\Debug\TestSMS.pdb
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\bin\Debug\EasySMPP.SMPPClient.pdb
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\bin\Debug\EasySMPP.Tools.pdb
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\bin\Debug\Inetlab.SMPP.xml
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\bin\Debug\RoaminSMPP.xml
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\obj\x86\Debug\TestSMS.Form1.resources
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\obj\x86\Debug\TestSMS.Properties.Resources.resources
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\obj\x86\Debug\TestSMS.csproj.GenerateResource.Cache
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\obj\x86\Debug\TestSMS.exe
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\obj\x86\Debug\TestSMS.pdb
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\obj\x86\Debug\TestSMS.csprojResolveAssemblyReference.cache
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\bin\Debug\JamaaTech.Smpp.Net.Client.dll
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\bin\Debug\JamaaTech.Smpp.Net.Lib.dll
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\bin\Debug\JamaaTech.Smpp.Net.Client.pdb
+C:\Users\AOSokolova\Documents\Visual Studio 2010\Projects\TestSMS\TestSMS\bin\Debug\JamaaTech.Smpp.Net.Lib.pdb
